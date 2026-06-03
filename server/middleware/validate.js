@@ -26,9 +26,14 @@ const validate = (schema) => (req, _res, next) => {
   }
 
   // Replace request data with validated + transformed data
-  req.body = result.data.body ?? req.body;
-  req.params = result.data.params ?? req.params;
-  req.query = result.data.query ?? req.query;
+  if (result.data.body !== undefined) req.body = result.data.body;
+  if (result.data.params !== undefined) req.params = result.data.params;
+  if (result.data.query !== undefined) {
+    for (const key in req.query) {
+      delete req.query[key];
+    }
+    Object.assign(req.query, result.data.query);
+  }
 
   next();
 };

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import api from '../services/api';
-import { LogOut, User, Activity, Dumbbell, ShieldAlert, CheckCircle, Scale } from 'lucide-react';
+import { LogOut, User, Activity, Dumbbell, ShieldAlert, CheckCircle, Scale, Target, Settings, ArrowRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const DashboardPage = () => {
@@ -64,9 +64,23 @@ const DashboardPage = () => {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="hidden sm:inline text-sm font-medium text-slate-600">
+          <span className="hidden md:inline text-sm font-medium text-slate-600">
             Active: <span className="font-bold text-slate-950">{user?.name}</span>
           </span>
+          <Link
+            to="/goals"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs text-slate-700 font-bold shadow-sm"
+          >
+            <Target className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+            Manage Goals
+          </Link>
+          <Link
+            to="/profile"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs text-slate-700 font-bold shadow-sm"
+          >
+            <Settings className="w-3.5 h-3.5 text-slate-400" />
+            Profile Settings
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs text-red-600 font-bold shadow-sm"
@@ -165,6 +179,70 @@ const DashboardPage = () => {
               <div className="mt-8 flex items-baseline gap-1.5">
                 <span className="text-3xl font-extrabold text-slate-900">{computedTdee}</span>
                 <span className="text-slate-400 text-xs font-semibold uppercase tracking-wide">kcal/day</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Goals Summary Section */}
+        <div className="health-card bg-white p-6 md:p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                <Target className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Nutrition Target Summary</h3>
+                <p className="text-slate-500 text-xs">Your current active daily dietary target levels</p>
+              </div>
+            </div>
+            <Link
+              to="/goals"
+              className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50/50 hover:bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-100/60 transition-colors"
+            >
+              Update Targets
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-2">
+            <div className="bg-slate-50/50 border border-slate-100/80 rounded-xl p-4 flex flex-col justify-between h-24">
+              <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Calories</span>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-xl font-black text-slate-900">{profileData?.goals?.calories || 2000}</span>
+                <span className="text-slate-400 text-[9px] font-bold">kcal</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50/50 border border-slate-100/80 rounded-xl p-4 flex flex-col justify-between h-24">
+              <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Protein</span>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-xl font-black text-slate-900">{profileData?.goals?.protein || 130}</span>
+                <span className="text-slate-400 text-[9px] font-bold">g</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50/50 border border-slate-100/80 rounded-xl p-4 flex flex-col justify-between h-24">
+              <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Carbs</span>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-xl font-black text-slate-900">{profileData?.goals?.carbohydrate || 220}</span>
+                <span className="text-slate-400 text-[9px] font-bold">g</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50/50 border border-slate-100/80 rounded-xl p-4 flex flex-col justify-between h-24">
+              <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Fat</span>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-xl font-black text-slate-900">{profileData?.goals?.fat || 70}</span>
+                <span className="text-slate-400 text-[9px] font-bold">g</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50/50 border border-slate-100/80 rounded-xl p-4 flex flex-col justify-between h-24 col-span-2 sm:col-span-1">
+              <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Fiber</span>
+              <div className="flex items-baseline gap-1 mt-2">
+                <span className="text-xl font-black text-slate-900">{profileData?.goals?.fiber || 30}</span>
+                <span className="text-slate-400 text-[9px] font-bold">g</span>
               </div>
             </div>
           </div>

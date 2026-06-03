@@ -74,20 +74,53 @@ const userSchema = new mongoose.Schema(
       },
 
       dietaryPreference: {
-        type: String,
-        enum: {
-          values: DIETARY_PREFERENCES,
-          message: `Dietary preference must be one of: ${DIETARY_PREFERENCES.join(', ')}`,
+          type: String,
+          enum: {
+            values: DIETARY_PREFERENCES,
+            message: `Dietary preference must be one of: ${DIETARY_PREFERENCES.join(', ')}`,
+          },
+          default: 'none',
         },
-        default: 'none',
+      },
+
+      goals: {
+        calories: {
+          type: Number,
+          default: 2000,
+          min: [500, 'Calorie goal must be at least 500 kcal'],
+          max: [10000, 'Calorie goal cannot exceed 10,000 kcal'],
+        },
+        protein: {
+          type: Number,
+          default: 130,
+          min: [0, 'Protein goal cannot be negative'],
+          max: [500, 'Protein goal cannot exceed 500g'],
+        },
+        carbohydrate: {
+          type: Number,
+          default: 220,
+          min: [0, 'Carbohydrate goal cannot be negative'],
+          max: [1000, 'Carbohydrate goal cannot exceed 1000g'],
+        },
+        fat: {
+          type: Number,
+          default: 70,
+          min: [0, 'Fat goal cannot be negative'],
+          max: [300, 'Fat goal cannot exceed 300g'],
+        },
+        fiber: {
+          type: Number,
+          default: 30,
+          min: [0, 'Fiber goal cannot be negative'],
+          max: [100, 'Fiber goal cannot exceed 100g'],
+        },
+      },
+
+      refreshToken: {
+        type: String,
+        select: false,
       },
     },
-
-    refreshToken: {
-      type: String,
-      select: false,
-    },
-  },
   {
     timestamps: true,
 
@@ -106,13 +139,11 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ createdAt: -1 });
 
 // ─── Pre-save Hook: Hash Password ────────────────────────────────────────
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
 
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
-
-  next();
 });
 
 // ─── Instance Methods ─────────────────────────────────────────────────────

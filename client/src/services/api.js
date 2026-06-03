@@ -61,7 +61,10 @@ api.interceptors.response.use(
     }
 
     // Return formatting for easy usage
-    const message = error.response?.data?.error || error.message || 'Something went wrong';
+    let message = error.response?.data?.error || error.message || 'Something went wrong';
+    if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+      message = error.response.data.errors.map((err) => err.message || err).join(', ');
+    }
     return Promise.reject(new Error(message));
   }
 );

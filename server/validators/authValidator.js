@@ -113,3 +113,28 @@ export const changePasswordSchema = z.object({
       ),
   }),
 });
+
+export const updateGoalsSchema = z.object({
+  body: z.object({
+    calories: z
+      .number({ required_error: 'Calorie goal is required' })
+      .min(500, 'Calorie goal must be at least 500 kcal')
+      .max(10000, 'Calorie goal cannot exceed 10,000 kcal'),
+    protein: z
+      .number({ required_error: 'Protein goal is required' })
+      .min(0, 'Protein goal cannot be negative')
+      .max(500, 'Protein goal cannot exceed 500g'),
+    carbohydrate: z
+      .number({ required_error: 'Carbohydrate goal is required' })
+      .min(0, 'Carbohydrate goal cannot be negative')
+      .max(1000, 'Carbohydrate goal cannot exceed 1000g'),
+    fat: z
+      .number({ required_error: 'Fat goal is required' })
+      .min(0, 'Fat goal cannot be negative')
+      .max(300, 'Fat goal cannot exceed 300g'),
+    fiber: z
+      .number({ required_error: 'Fiber goal is required' })
+      .min(0, 'Fiber goal cannot be negative')
+      .max(100, 'Fiber goal cannot exceed 100g'),
+  }),
+});

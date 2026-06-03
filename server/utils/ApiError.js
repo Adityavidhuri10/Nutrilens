@@ -2,9 +2,10 @@
  * Custom operational API Error class for Express
  */
 class ApiError extends Error {
-  constructor(statusCode, message, isOperational = true, stack = '') {
+  constructor(statusCode, message, errors = [], isOperational = true, stack = '') {
     super(message);
     this.statusCode = statusCode;
+    this.errors = errors;
     this.isOperational = isOperational;
     if (stack) {
       this.stack = stack;
@@ -13,8 +14,8 @@ class ApiError extends Error {
     }
   }
 
-  static badRequest(message) {
-    return new ApiError(400, message);
+  static badRequest(message, errors = []) {
+    return new ApiError(400, message, errors);
   }
 
   static unauthorized(message) {

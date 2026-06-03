@@ -18,6 +18,17 @@ const app = express();
 connectDB();
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
+// Express 5 request compatibility fix (makes read-only req.query writable for third-party libraries)
+app.use((req, res, next) => {
+  const queryVal = req.query;
+  Object.defineProperty(req, 'query', {
+    value: queryVal,
+    writable: true,
+    configurable: true,
+  });
+  next();
+});
+
 // Set security HTTP headers
 app.use(helmet());
 
@@ -44,6 +55,7 @@ app.use(mongoSanitize());
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api', authRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

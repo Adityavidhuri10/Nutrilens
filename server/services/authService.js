@@ -199,6 +199,36 @@ class AuthService {
     user.refreshToken = null; // Invalidate all sessions on password change
     await user.save();
   }
+
+  /**
+   * Update user nutrition goals
+   */
+  async updateGoals(userId, goalsData) {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw ApiError.notFound('User not found');
+    }
+
+    user.goals = {
+      calories: goalsData.calories,
+      protein: goalsData.protein,
+      carbohydrate: goalsData.carbohydrate,
+      fat: goalsData.fat,
+      fiber: goalsData.fiber,
+    };
+
+    await user.save();
+
+    const userObj = user.toJSON();
+    return {
+      ...userObj,
+      computed: {
+        bmr: user.calculateBMR(),
+        tdee: user.calculateTDEE(),
+      },
+    };
+  }
 }
 
 export default new AuthService();

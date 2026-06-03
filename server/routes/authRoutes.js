@@ -7,6 +7,7 @@ import {
   getProfile,
   updateProfile,
   changePassword,
+  updateGoals,
 } from '../controllers/authController.js';
 import protect from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
@@ -16,6 +17,7 @@ import {
   refreshTokenSchema,
   updateProfileSchema,
   changePasswordSchema,
+  updateGoalsSchema,
 } from '../validators/authValidator.js';
 
 const router = express.Router();
@@ -31,5 +33,6 @@ router.post('/logout', protect, logout);
 router.get('/me', protect, getProfile);
 router.put('/me', protect, validate(updateProfileSchema), updateProfile);
 router.put('/me/password', protect, validate(changePasswordSchema), changePassword);
+router.put('/me/goals', protect, validate(updateGoalsSchema), updateGoals);
 
 export default router;

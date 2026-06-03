@@ -86,3 +86,14 @@ export const changePassword = asyncHandler(async (req, res) => {
     message: 'Password changed successfully. Please log in again.',
   });
 });
+
+// PUT /api/users/me/goals
+export const updateGoals = asyncHandler(async (req, res) => {
+  const updatedProfile = await authService.updateGoals(req.user._id, req.body);
+
+  res.status(200).json({
+    success: true,
+    message: 'Goals updated successfully',
+    data: updatedProfile,
+  });
+});
