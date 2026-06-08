@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import env from './config/env.js';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
+import mealRoutes from './routes/mealRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import ApiError from './utils/ApiError.js';
 
@@ -55,6 +56,7 @@ app.use(mongoSanitize());
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/meals', mealRoutes);
 app.use('/api', authRoutes);
 
 // Health check endpoint

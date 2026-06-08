@@ -68,6 +68,19 @@ const DashboardPage = () => {
             Active: <span className="font-bold text-slate-950">{user?.name}</span>
           </span>
           <Link
+            to="/meals"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs text-slate-700 font-bold shadow-sm"
+          >
+            <Activity className="w-3.5 h-3.5 text-emerald-500" />
+            My Meals
+          </Link>
+          <Link
+            to="/meals/upload"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-transparent bg-emerald-500 hover:bg-emerald-600 text-white transition-colors text-xs font-bold shadow-sm"
+          >
+            Log Meal
+          </Link>
+          <Link
             to="/goals"
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs text-slate-700 font-bold shadow-sm"
           >
@@ -105,6 +118,35 @@ const DashboardPage = () => {
           <div className="badge-active">
             <CheckCircle className="w-3.5 h-3.5" />
             Design System Connected
+          </div>
+        </div>
+
+        {/* Food Image Upload System Call-to-Action Card */}
+        <div className="health-card bg-white p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border-emerald-100 bg-emerald-50/10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+              <Activity className="w-6 h-6 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-base">Visual Dietary Logs</h3>
+              <p className="text-slate-500 text-xs mt-0.5 max-w-lg">
+                Track food intake using our premium drag-and-drop image upload system. Log meal types, dates, notes, and manage entries in your log history.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 w-full sm:w-auto shrink-0">
+            <Link
+              to="/meals"
+              className="flex-1 sm:flex-none text-center btn-secondary py-2.5 px-4 text-xs font-bold"
+            >
+              View History
+            </Link>
+            <Link
+              to="/meals/upload"
+              className="flex-1 sm:flex-none text-center btn-primary py-2.5 px-5 text-xs font-extrabold shadow-sm"
+            >
+              Log New Meal
+            </Link>
           </div>
         </div>
 

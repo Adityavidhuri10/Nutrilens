@@ -113,6 +113,18 @@ const GoalsPage = () => {
             <ArrowLeft className="w-3.5 h-3.5" />
             Dashboard
           </Link>
+          <Link
+            to="/meals"
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-2.5 py-1.5 rounded-lg bg-white shadow-sm transition-colors"
+          >
+            My Meals
+          </Link>
+          <Link
+            to="/meals/upload"
+            className="flex items-center gap-1.5 text-xs font-bold text-white hover:bg-emerald-600 border border-transparent px-2.5 py-1.5 rounded-lg bg-emerald-500 shadow-sm transition-colors"
+          >
+            Log Meal
+          </Link>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white shadow-sm">
               NL

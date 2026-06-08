@@ -7,6 +7,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import GoalsPage from './pages/GoalsPage';
 import ProfilePage from './pages/ProfilePage';
+import MealsPage from './pages/MealsPage';
+import UploadMealPage from './pages/UploadMealPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
@@ -25,6 +27,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meals"
+            element={
+              <ProtectedRoute>
+                <MealsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meals/upload"
+            element={
+              <ProtectedRoute>
+                <UploadMealPage />
               </ProtectedRoute>
             }
           />
