@@ -4,7 +4,6 @@ import { RATE_LIMITS } from '../utils/constants.js';
 /**
  * Creates a rate limiter middleware with the specified configuration.
  * Uses in-memory store by default — acceptable for single-instance deployments.
- * For multi-instance, swap to rate-limit-mongo or rate-limit-redis.
  */
 const createRateLimiter = (config, messagePrefix = 'Too many requests') => {
   return rateLimit({
@@ -14,8 +13,8 @@ const createRateLimiter = (config, messagePrefix = 'Too many requests') => {
       success: false,
       error: `${messagePrefix}. Please try again later.`,
     },
-    standardHeaders: true,  // Return rate limit info in `RateLimit-*` headers
-    legacyHeaders: false,   // Disable `X-RateLimit-*` headers
+    standardHeaders: true,
+    legacyHeaders: false,
   });
 };
 
@@ -35,12 +34,8 @@ export const aiAnalyzeLimiter = createRateLimiter(
   'Daily AI analysis limit reached'
 );
 
-export const aiCoachingLimiter = createRateLimiter(
-  RATE_LIMITS.AI_COACHING,
-  'Daily coaching limit reached'
-);
-
 export const generalLimiter = createRateLimiter(
   RATE_LIMITS.GENERAL,
   'Too many requests'
 );
+

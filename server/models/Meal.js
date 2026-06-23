@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { MEAL_TYPES } from '../utils/constants.js';
+import { MEAL_TYPES, AI_ANALYSIS_STATUS } from '../utils/constants.js';
 
 const mealSchema = new mongoose.Schema(
   {
@@ -24,6 +24,40 @@ const mealSchema = new mongoose.Schema(
       enum: {
         values: MEAL_TYPES,
         message: `Meal type must be one of: ${MEAL_TYPES.join(', ')}`,
+      },
+    },
+    nutrition: {
+      foodItems: {
+        type: [String],
+        default: [],
+      },
+      calories: {
+        type: Number,
+        default: 0,
+      },
+      protein: {
+        type: Number,
+        default: 0,
+      },
+      carbs: {
+        type: Number,
+        default: 0,
+      },
+      fats: {
+        type: Number,
+        default: 0,
+      },
+      fiber: {
+        type: Number,
+        default: 0,
+      },
+      analysisStatus: {
+        type: String,
+        enum: {
+          values: AI_ANALYSIS_STATUS,
+          message: `Analysis status must be one of: ${AI_ANALYSIS_STATUS.join(', ')}`,
+        },
+        default: 'failed',
       },
     },
     date: {

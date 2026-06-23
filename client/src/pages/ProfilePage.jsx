@@ -17,7 +17,6 @@ const ProfilePage = () => {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [activityLevel, setActivityLevel] = useState('moderate');
-  const [dietaryPreference, setDietaryPreference] = useState('none');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   // Password fields state
@@ -29,7 +28,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await api.get('/me');
+        const { data } = await api.get('/auth/me');
         setProfileData(data.data);
         setName(data.data.name || '');
         setAge(data.data.profile?.age || '');
@@ -37,7 +36,6 @@ const ProfilePage = () => {
         setHeight(data.data.profile?.height || '');
         setWeight(data.data.profile?.weight || '');
         setActivityLevel(data.data.profile?.activityLevel || 'moderate');
-        setDietaryPreference(data.data.profile?.dietaryPreference || 'none');
         updateUser(data.data);
       } catch (err) {
         toast.error('Failed to load profile details');
@@ -62,11 +60,10 @@ const ProfilePage = () => {
           height: Number(height),
           weight: Number(weight),
           activityLevel,
-          dietaryPreference,
         },
       };
 
-      const { data } = await api.put('/me', updateData);
+      const { data } = await api.put('/auth/me', updateData);
       updateUser(data.data);
       setProfileData(data.data);
       toast.success('Physical profile details updated!');
@@ -90,7 +87,7 @@ const ProfilePage = () => {
 
     setIsUpdatingPassword(true);
     try {
-      await api.put('/me/password', {
+      await api.put('/auth/me/password', {
         currentPassword,
         newPassword,
       });
@@ -203,7 +200,7 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">Age</label>
                     <input
@@ -227,21 +224,6 @@ const ProfilePage = () => {
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                       <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">Diet Preference</label>
-                    <select
-                      value={dietaryPreference}
-                      onChange={(e) => setDietaryPreference(e.target.value)}
-                      className="health-input"
-                    >
-                      <option value="none">Standard</option>
-                      <option value="vegetarian">Vegetarian</option>
-                      <option value="vegan">Vegan</option>
-                      <option value="keto">Keto</option>
-                      <option value="paleo">Paleo</option>
                     </select>
                   </div>
                 </div>

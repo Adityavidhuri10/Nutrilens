@@ -106,7 +106,7 @@ const UploadMealPage = () => {
     }
 
     setIsUploading(true);
-    const toastId = toast.loading('Uploading and logging your meal...');
+    const toastId = toast.loading('Analyzing your meal with AI...');
 
     try {
       const formData = new FormData();
@@ -121,7 +121,7 @@ const UploadMealPage = () => {
         },
       });
 
-      toast.success('Meal logged successfully!', { id: toastId });
+      toast.success('Meal logged & analyzed! 🎉', { id: toastId });
       navigate('/meals');
     } catch (err) {
       toast.error(err.message || 'Failed to upload meal', { id: toastId });
@@ -158,9 +158,6 @@ const UploadMealPage = () => {
             </span>
           </div>
         </div>
-        <span className="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-100 rounded-full px-2.5 py-1">
-          Upload System Active
-        </span>
       </header>
 
       {/* Main Layout Area */}
@@ -327,10 +324,10 @@ const UploadMealPage = () => {
                   {isUploading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Uploading Meal...
+                      Analyzing with AI...
                     </>
                   ) : (
-                    'Upload & Log Meal'
+                    'Upload & Analyze Meal'
                   )}
                 </button>
                 <Link

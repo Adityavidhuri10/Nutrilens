@@ -1,6 +1,4 @@
 import multer from 'multer';
-import path from 'path';
-import crypto from 'crypto';
 import { IMAGE_CONFIG } from '../utils/constants.js';
 import ApiError from '../utils/ApiError.js';
 
@@ -8,10 +6,9 @@ import ApiError from '../utils/ApiError.js';
  * Multer configuration for food image uploads.
  *
  * Security measures:
- * - UUID filenames (no user-controlled paths)
  * - MIME type validation (JPEG, PNG, WebP only)
  * - 5MB size limit
- * - Stored in temp directory, deleted after Cloudinary upload
+ * - Memory storage to avoid writing unverified files directly to disk
  */
 
 // Store in memory buffer (uploaded to Cloudinary, never persisted to disk)

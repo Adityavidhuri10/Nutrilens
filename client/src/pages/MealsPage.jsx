@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit2, Trash2, Calendar, FileText, Utensils, X, Check, UploadCloud } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Calendar, FileText, Utensils, X, Check, UploadCloud, Filter } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 
@@ -9,7 +9,13 @@ const MealsPage = () => {
   const fileInputRef = useRef(null);
 
   const [meals, setMeals] = useState([]);
+  const [groupedHistory, setGroupedHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('all'); // 'all' | 'filtered'
+
+  // Date filter states
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Modal edit states
   const [editingMeal, setEditingMeal] = useState(null);
@@ -21,7 +27,7 @@ const MealsPage = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Fetch meals
+  // Fetch all meals
   const fetchMeals = async () => {
     try {
       const { data } = await api.get('/meals');
@@ -33,9 +39,47 @@ const MealsPage = () => {
     }
   };
 
+  // Fetch meals by date range
+  const fetchFilteredMeals = async (start, end) => {
+    try {
+      const params = new URLSearchParams();
+      if (start) params.append('startDate', start);
+      if (end) params.append('endDate', end);
+      const { data } = await api.get(`/meals/history?${params.toString()}`);
+      setGroupedHistory(data.data);
+      setViewMode('filtered');
+    } catch (err) {
+      toast.error('Failed to load filtered history');
+    }
+  };
+
   useEffect(() => {
     fetchMeals();
   }, []);
+
+  const handleApplyFilter = () => {
+    if (startDate || endDate) {
+      fetchFilteredMeals(startDate, endDate);
+    }
+  };
+
+  const handleClearFilter = () => {
+    setStartDate('');
+    setEndDate('');
+    setViewMode('all');
+    setGroupedHistory([]);
+  };
+
+  const handleQuickFilter = (days) => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - days);
+    const startStr = start.toISOString().split('T')[0];
+    const endStr = end.toISOString().split('T')[0];
+    setStartDate(startStr);
+    setEndDate(endStr);
+    fetchFilteredMeals(startStr, endStr);
+  };
 
   // Cleanup object URL
   useEffect(() => {
@@ -254,8 +298,134 @@ const MealsPage = () => {
           </span>
         </div>
 
-        {/* Empty State */}
-        {meals.length === 0 ? (
+        {/* Date Range Filter */}
+        <div className="health-card bg-white p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+            <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+            Filter by Date
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="health-input py-1.5 px-2.5 text-xs w-auto"
+              placeholder="Start"
+            />
+            <span className="text-slate-400 text-xs font-bold">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="health-input py-1.5 px-2.5 text-xs w-auto"
+              placeholder="End"
+            />
+            <button
+              onClick={handleApplyFilter}
+              disabled={!startDate && !endDate}
+              className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors disabled:opacity-40"
+            >
+              <Filter className="w-3 h-3 inline mr-1" />
+              Apply
+            </button>
+            {viewMode === 'filtered' && (
+              <button
+                onClick={handleClearFilter}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleQuickFilter(7)}
+              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors"
+            >
+              This Week
+            </button>
+            <button
+              onClick={() => handleQuickFilter(30)}
+              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors"
+            >
+              This Month
+            </button>
+          </div>
+        </div>
+
+        {/* Grouped History View (when filtered) */}
+        {viewMode === 'filtered' && groupedHistory.length > 0 && (
+          <div className="space-y-6">
+            {groupedHistory.map((dayGroup) => (
+              <div key={dayGroup.date} className="space-y-3">
+                {/* Day Header with Totals */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 px-1">
+                  <h3 className="font-bold text-slate-900 text-sm">
+                    📅 {new Date(dayGroup.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    <span className="text-slate-400 font-semibold ml-2">
+                      ({dayGroup.meals.length} {dayGroup.meals.length === 1 ? 'meal' : 'meals'})
+                    </span>
+                  </h3>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold border border-emerald-100">
+                      {dayGroup.totals.calories} kcal
+                    </span>
+                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-100">
+                      {dayGroup.totals.protein}g P
+                    </span>
+                    <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-100">
+                      {dayGroup.totals.carbs}g C
+                    </span>
+                    <span className="bg-rose-50 text-rose-700 px-2 py-0.5 rounded font-bold border border-rose-100">
+                      {dayGroup.totals.fats}g F
+                    </span>
+                  </div>
+                </div>
+                {/* Meal Cards for This Day */}
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {dayGroup.meals.map((meal) => (
+                    <div key={meal._id} className="health-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col">
+                      <div className="relative h-36 bg-slate-100 overflow-hidden border-b border-slate-100">
+                        <img
+                          src={meal.image.url}
+                          alt={`${meal.mealType} log`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm shadow-sm py-0.5 px-2 rounded-lg border border-slate-100/50 text-[10px] font-bold text-slate-900 capitalize">
+                          {getMealTypeEmoji(meal.mealType)} {meal.mealType}
+                        </div>
+                      </div>
+                      <div className="p-3 space-y-2">
+                        {meal.nutrition?.foodItems?.length > 0 && (
+                          <p className="text-slate-600 text-xs truncate">{meal.nutrition.foodItems.join(', ')}</p>
+                        )}
+                        {meal.nutrition && meal.nutrition.analysisStatus !== 'failed' && (
+                          <div className="flex gap-2 text-[10px] font-bold">
+                            <span className="text-emerald-600">{meal.nutrition.calories}kcal</span>
+                            <span className="text-blue-600">{meal.nutrition.protein}g P</span>
+                            <span className="text-amber-600">{meal.nutrition.carbs}g C</span>
+                            <span className="text-rose-600">{meal.nutrition.fats}g F</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {viewMode === 'filtered' && groupedHistory.length === 0 && (
+          <div className="health-card bg-white border border-slate-200 rounded-2xl p-12 text-center">
+            <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-slate-900 font-bold text-lg mb-2">No meals in this range</h3>
+            <p className="text-slate-500 text-sm">Try a different date range or clear the filter.</p>
+          </div>
+        )}
+
+        {/* All Meals View (default) */}
+        {viewMode === 'all' && meals.length === 0 ? (
           <div className="health-card bg-white border border-slate-200 rounded-2xl p-12 text-center flex flex-col items-center justify-center min-h-[350px]">
             <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mb-6">
               <Utensils className="w-8 h-8" />
@@ -272,7 +442,7 @@ const MealsPage = () => {
               Log Your First Meal
             </Link>
           </div>
-        ) : (
+        ) : viewMode === 'all' && (
           /* Cards Grid */
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {meals.map((meal) => (
@@ -288,17 +458,85 @@ const MealsPage = () => {
                     <span>{getMealTypeEmoji(meal.mealType)}</span>
                     {meal.mealType}
                   </div>
+                  {/* AI Analysis Status Badge */}
+                  <div className={`absolute top-3 right-3 py-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 backdrop-blur-sm shadow-sm border ${
+                    meal.nutrition?.analysisStatus === 'success'
+                      ? 'bg-emerald-50/95 text-emerald-700 border-emerald-200/60'
+                      : meal.nutrition?.analysisStatus === 'partial'
+                      ? 'bg-amber-50/95 text-amber-700 border-amber-200/60'
+                      : 'bg-red-50/95 text-red-600 border-red-200/60'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      meal.nutrition?.analysisStatus === 'success'
+                        ? 'bg-emerald-500'
+                        : meal.nutrition?.analysisStatus === 'partial'
+                        ? 'bg-amber-500'
+                        : 'bg-red-400'
+                    }`}></span>
+                    {meal.nutrition?.analysisStatus === 'success' ? 'AI Analyzed' : meal.nutrition?.analysisStatus === 'partial' ? 'Partial' : 'No AI Data'}
+                  </div>
                 </div>
 
                 {/* Card Info */}
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex items-center gap-1.5 text-slate-400 text-xs font-semibold">
                       <Calendar className="w-3.5 h-3.5 text-slate-400" />
                       {formatDate(meal.date)}
                     </div>
+
+                    {/* Nutrition Data */}
+                    {meal.nutrition && meal.nutrition.analysisStatus !== 'failed' && (
+                      <div className="space-y-3">
+                        {/* Food Items Chips */}
+                        {meal.nutrition.foodItems && meal.nutrition.foodItems.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {meal.nutrition.foodItems.map((item, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-100/60"
+                              >
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Macro Bars */}
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Calories</span>
+                            <span className="text-xs font-extrabold text-slate-900">{meal.nutrition.calories}<span className="text-[9px] text-slate-400 ml-0.5">kcal</span></span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">Protein</span>
+                            <span className="text-xs font-extrabold text-slate-900">{meal.nutrition.protein}<span className="text-[9px] text-slate-400 ml-0.5">g</span></span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Carbs</span>
+                            <span className="text-xs font-extrabold text-slate-900">{meal.nutrition.carbs}<span className="text-[9px] text-slate-400 ml-0.5">g</span></span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400">Fats</span>
+                            <span className="text-xs font-extrabold text-slate-900">{meal.nutrition.fats}<span className="text-[9px] text-slate-400 ml-0.5">g</span></span>
+                          </div>
+                          <div className="col-span-2 flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-green-400">Fiber</span>
+                            <span className="text-xs font-extrabold text-slate-900">{meal.nutrition.fiber}<span className="text-[9px] text-slate-400 ml-0.5">g</span></span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fallback when AI analysis failed */}
+                    {(!meal.nutrition || meal.nutrition.analysisStatus === 'failed') && (
+                      <div className="bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-center">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AI analysis unavailable</span>
+                      </div>
+                    )}
+
                     {meal.notes ? (
-                      <p className="text-slate-600 text-sm leading-relaxed line-clamp-3">
+                      <p className="text-slate-600 text-sm leading-relaxed line-clamp-2">
                         {meal.notes}
                       </p>
                     ) : (

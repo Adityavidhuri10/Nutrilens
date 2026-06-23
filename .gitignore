@@ -9,4 +9,4 @@ client/node_modules/
 server/node_modules/
 frontend/dist/
 backend/dist/
-.env
+implementation_plan.md

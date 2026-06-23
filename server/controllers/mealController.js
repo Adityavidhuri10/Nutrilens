@@ -17,6 +17,7 @@ export const createMealLog = asyncHandler(async (req, res) => {
     date,
     notes,
     fileBuffer: req.file.buffer,
+    mimeType: req.file.mimetype,
   });
 
   res.status(201).json({
@@ -29,11 +30,45 @@ export const createMealLog = asyncHandler(async (req, res) => {
 // GET /api/meals
 export const getMealHistory = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const meals = await mealService.getMealsForUser(userId);
+  const { page, limit, mealType, date } = req.query;
+
+  const result = await mealService.getMealsForUser(userId, {
+    page,
+    limit,
+    mealType,
+    date,
+  });
 
   res.status(200).json({
     success: true,
-    data: meals,
+    data: result.meals,
+    pagination: result.pagination,
+  });
+});
+
+// GET /api/meals/daily-summary?date=YYYY-MM-DD
+export const getDailySummary = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const date = req.query.date || new Date().toISOString().split('T')[0];
+
+  const summary = await mealService.getDailySummary(userId, date);
+
+  res.status(200).json({
+    success: true,
+    data: summary,
+  });
+});
+
+// GET /api/meals/history?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+export const getMealsByDateRange = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { startDate, endDate } = req.query;
+
+  const history = await mealService.getMealsByDateRange(userId, startDate, endDate);
+
+  res.status(200).json({
+    success: true,
+    data: history,
   });
 });
 
@@ -61,6 +96,7 @@ export const updateMealLog = asyncHandler(async (req, res) => {
     date,
     notes,
     fileBuffer: req.file ? req.file.buffer : null,
+    mimeType: req.file ? req.file.mimetype : null,
   });
 
   res.status(200).json({
@@ -86,6 +122,8 @@ export const deleteMealLog = asyncHandler(async (req, res) => {
 export default {
   createMealLog,
   getMealHistory,
+  getDailySummary,
+  getMealsByDateRange,
   getSingleMeal,
   updateMealLog,
   deleteMealLog,

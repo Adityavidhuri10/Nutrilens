@@ -2,15 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
-import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
 import env from './config/env.js';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import mealRoutes from './routes/mealRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import insightRoutes from './routes/insightRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import ApiError from './utils/ApiError.js';
+import { generalLimiter } from './middleware/rateLimiter.js';
 
 // Initialize express app
 const app = express();
@@ -19,7 +21,7 @@ const app = express();
 connectDB();
 
 // ─── Middleware ─────────────────────────────────────────────────────────────
-// Express 5 request compatibility fix (makes read-only req.query writable for third-party libraries)
+// Express 5 compatibility fix: makes read-only req.query writable for libraries like express-mongo-sanitize
 app.use((req, res, next) => {
   const queryVal = req.query;
   Object.defineProperty(req, 'query', {
@@ -36,7 +38,9 @@ app.use(helmet());
 // Enable CORS
 app.use(
   cors({
-    origin: true, // Allow all origins during dev, configure for prod later
+    origin: env.NODE_ENV === 'production'
+      ? env.CLIENT_URL
+      : true,
     credentials: true,
   })
 );
@@ -46,18 +50,21 @@ if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Body parser, reading data from body into req.body
+// Body parser
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 
+// Global rate limiter for all API routes
+app.use('/api', generalLimiter);
+
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/meals', mealRoutes);
-app.use('/api', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/insights', insightRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -81,3 +88,4 @@ const PORT = env.PORT;
 app.listen(PORT, () => {
   console.log(`🚀 NutriLens AI Server running in ${env.NODE_ENV} mode on port ${PORT}`);
 });
+

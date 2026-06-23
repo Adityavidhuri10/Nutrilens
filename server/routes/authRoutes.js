@@ -11,6 +11,7 @@ import {
 } from '../controllers/authController.js';
 import protect from '../middleware/auth.js';
 import validate from '../middleware/validate.js';
+import { authRegisterLimiter, authLoginLimiter } from '../middleware/rateLimiter.js';
 import {
   registerSchema,
   loginSchema,
@@ -23,10 +24,9 @@ import {
 const router = express.Router();
 
 // Public routes
-router.post('/register', validate(registerSchema), register);
-router.post('/login', validate(loginSchema), login);
+router.post('/register', authRegisterLimiter, validate(registerSchema), register);
+router.post('/login', authLoginLimiter, validate(loginSchema), login);
 router.post('/refresh', validate(refreshTokenSchema), refresh);
-
 
 // Protected routes (require valid JWT)
 router.post('/logout', protect, logout);
@@ -36,3 +36,4 @@ router.put('/me/password', protect, validate(changePasswordSchema), changePasswo
 router.put('/me/goals', protect, validate(updateGoalsSchema), updateGoals);
 
 export default router;
+

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GENDERS, ACTIVITY_LEVELS, DIETARY_PREFERENCES } from '../utils/constants.js';
+import { GENDERS, ACTIVITY_LEVELS } from '../utils/constants.js';
 
 /**
  * Zod validation schemas for auth endpoints.
@@ -48,10 +48,6 @@ export const registerSchema = z.object({
           message: `Activity level must be one of: ${ACTIVITY_LEVELS.join(', ')}`,
         }),
       }),
-      dietaryPreference: z
-        .enum(DIETARY_PREFERENCES)
-        .optional()
-        .default('none'),
     }),
   }),
 });
@@ -92,7 +88,6 @@ export const updateProfileSchema = z.object({
         height: z.number().min(50).max(300).optional(),
         weight: z.number().min(20).max(500).optional(),
         activityLevel: z.enum(ACTIVITY_LEVELS).optional(),
-        dietaryPreference: z.enum(DIETARY_PREFERENCES).optional(),
       })
       .optional(),
   }),

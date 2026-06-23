@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import {
   GENDERS,
   ACTIVITY_LEVELS,
-  DIETARY_PREFERENCES,
   ACTIVITY_MULTIPLIERS,
 } from '../utils/constants.js';
 
@@ -72,16 +71,7 @@ const userSchema = new mongoose.Schema(
           message: `Activity level must be one of: ${ACTIVITY_LEVELS.join(', ')}`,
         },
       },
-
-      dietaryPreference: {
-          type: String,
-          enum: {
-            values: DIETARY_PREFERENCES,
-            message: `Dietary preference must be one of: ${DIETARY_PREFERENCES.join(', ')}`,
-          },
-          default: 'none',
-        },
-      },
+    },
 
       goals: {
         calories: {

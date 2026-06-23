@@ -21,7 +21,7 @@ const GoalsPage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await api.get('/me');
+        const { data } = await api.get('/auth/me');
         setProfileData(data.data);
         setActiveGoals(data.data.goals || activeGoals);
         updateUser(data.data);
@@ -81,7 +81,7 @@ const GoalsPage = () => {
         fiber: template.fiber,
       };
 
-      const { data } = await api.put('/me/goals', goalsData);
+      const { data } = await api.put('/auth/me/goals', goalsData);
       updateUser(data.data);
       setActiveGoals(data.data.goals);
       toast.success(`${template.label} template applied!`);
@@ -134,9 +134,6 @@ const GoalsPage = () => {
             </span>
           </div>
         </div>
-        <span className="text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-100 rounded-full px-2.5 py-1">
-          Goal Engine Enabled
-        </span>
       </header>
 
       {/* Main Layout */}

@@ -26,7 +26,7 @@ const GoalForm = ({ currentGoals, onGoalsUpdated }) => {
         fiber: Number(fiber),
       };
 
-      const { data } = await api.put('/me/goals', goalsData);
+      const { data } = await api.put('/auth/me/goals', goalsData);
       updateUser(data.data);
       if (onGoalsUpdated) {
         onGoalsUpdated(data.data.goals);
