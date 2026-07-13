@@ -14,14 +14,14 @@ const LandingPage = () => {
     <div className="min-h-screen flex flex-col bg-[#f8fafc] text-[#475569]">
       {/* Apple-style clean header */}
       <header className="px-6 lg:px-16 h-16 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity">
           <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white shadow-sm">
             NL
           </div>
           <span className="text-lg font-bold tracking-tight text-slate-900 font-heading">
             NutriLens<span className="text-emerald-500">AI</span>
           </span>
-        </div>
+        </Link>
         <nav className="flex items-center gap-5">
           <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-emerald-600 transition-colors">
             Sign In

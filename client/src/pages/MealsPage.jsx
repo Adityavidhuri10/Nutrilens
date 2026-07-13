@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit2, Trash2, Calendar, FileText, Utensils, X, Check, UploadCloud, Filter } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, FileText, Utensils, X, Check, UploadCloud, Filter } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 
@@ -30,7 +30,7 @@ const MealsPage = () => {
   // Fetch all meals
   const fetchMeals = async () => {
     try {
-      const { data } = await api.get('/meals');
+      const { data } = await api.get('/meals?limit=100');
       setMeals(data.data);
     } catch (err) {
       toast.error('Failed to load meal history');
@@ -94,13 +94,13 @@ const MealsPage = () => {
   const handleOpenEdit = (meal) => {
     setEditingMeal(meal);
     setEditMealType(meal.mealType);
-    
+
     // Format UTC Date string to YYYY-MM-DDTHH:MM local format
     const localDate = new Date(meal.date);
     const tzOffset = localDate.getTimezoneOffset() * 60000;
     const localISOTime = new Date(localDate.getTime() - tzOffset).toISOString().slice(0, 16);
     setEditDate(localISOTime);
-    
+
     setEditNotes(meal.notes || '');
     setEditImageFile(null);
     setEditImagePreview(meal.image.url);
@@ -173,7 +173,10 @@ const MealsPage = () => {
     try {
       await api.delete(`/meals/${mealId}`);
       toast.success('Meal log deleted successfully', { id: toastId });
-      setMeals(meals.filter((m) => m._id !== mealId));
+      fetchMeals();
+      if (viewMode === 'filtered') {
+        fetchFilteredMeals(startDate, endDate);
+      }
     } catch (err) {
       toast.error(err.message || 'Failed to delete meal log', { id: toastId });
     }
@@ -201,7 +204,10 @@ const MealsPage = () => {
       });
 
       toast.success('Meal log updated successfully', { id: toastId });
-      setMeals(meals.map((m) => (m._id === editingMeal._id ? data.data : m)));
+      fetchMeals();
+      if (viewMode === 'filtered') {
+        fetchFilteredMeals(startDate, endDate);
+      }
       handleCloseEdit();
     } catch (err) {
       toast.error(err.message || 'Failed to update meal log', { id: toastId });
@@ -254,29 +260,13 @@ const MealsPage = () => {
       {/* Premium Apple/Notion Header */}
       <header className="px-6 lg:px-16 h-16 flex items-center justify-between border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-2.5 py-1.5 rounded-lg bg-white shadow-sm transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Dashboard
-          </Link>
-          <div className="flex items-center gap-2">
+          <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-85 transition-opacity">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white shadow-sm">
               NL
             </div>
             <span className="text-lg font-bold tracking-tight text-slate-900">
               NutriLens<span className="text-emerald-500">AI</span>
             </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/meals/upload"
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-transparent bg-emerald-500 hover:bg-emerald-600 transition-colors text-xs text-white font-bold shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Log Meal
           </Link>
         </div>
       </header>
@@ -294,7 +284,11 @@ const MealsPage = () => {
           </div>
           <span className="badge-active">
             <Check className="w-3.5 h-3.5" />
-            Total: {meals.length} {meals.length === 1 ? 'Meal' : 'Meals'}
+            Total: {viewMode === 'filtered'
+              ? groupedHistory.reduce((acc, day) => acc + day.meals.length, 0)
+              : meals.length} {(viewMode === 'filtered'
+                ? groupedHistory.reduce((acc, day) => acc + day.meals.length, 0)
+                : meals.length) === 1 ? 'Meal' : 'Meals'}
           </span>
         </div>
 
@@ -459,20 +453,18 @@ const MealsPage = () => {
                     {meal.mealType}
                   </div>
                   {/* AI Analysis Status Badge */}
-                  <div className={`absolute top-3 right-3 py-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 backdrop-blur-sm shadow-sm border ${
-                    meal.nutrition?.analysisStatus === 'success'
+                  <div className={`absolute top-3 right-3 py-1 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 backdrop-blur-sm shadow-sm border ${meal.nutrition?.analysisStatus === 'success'
                       ? 'bg-emerald-50/95 text-emerald-700 border-emerald-200/60'
                       : meal.nutrition?.analysisStatus === 'partial'
-                      ? 'bg-amber-50/95 text-amber-700 border-amber-200/60'
-                      : 'bg-red-50/95 text-red-600 border-red-200/60'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      meal.nutrition?.analysisStatus === 'success'
+                        ? 'bg-amber-50/95 text-amber-700 border-amber-200/60'
+                        : 'bg-red-50/95 text-red-600 border-red-200/60'
+                    }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${meal.nutrition?.analysisStatus === 'success'
                         ? 'bg-emerald-500'
                         : meal.nutrition?.analysisStatus === 'partial'
-                        ? 'bg-amber-500'
-                        : 'bg-red-400'
-                    }`}></span>
+                          ? 'bg-amber-500'
+                          : 'bg-red-400'
+                      }`}></span>
                     {meal.nutrition?.analysisStatus === 'success' ? 'AI Analyzed' : meal.nutrition?.analysisStatus === 'partial' ? 'Partial' : 'No AI Data'}
                   </div>
                 </div>
@@ -600,11 +592,10 @@ const MealsPage = () => {
                   onDragLeave={handleEditDragLeave}
                   onDrop={handleEditDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors relative min-h-[160px] flex flex-col items-center justify-center ${
-                    isDragging
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors relative min-h-[160px] flex flex-col items-center justify-center ${isDragging
                       ? 'border-emerald-500 bg-emerald-50/10'
                       : 'border-slate-200 hover:border-slate-300'
-                  }`}
+                    }`}
                 >
                   <img
                     src={editImagePreview}
@@ -639,11 +630,10 @@ const MealsPage = () => {
                         key={type.id}
                         type="button"
                         onClick={() => setEditMealType(type.id)}
-                        className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all ${
-                          isSelected
+                        className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-bold transition-all ${isSelected
                             ? 'border-emerald-500 bg-emerald-50/20 text-emerald-700'
                             : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                        }`}
+                          }`}
                       >
                         <span className="text-base mb-1">{type.emoji}</span>
                         {type.label}

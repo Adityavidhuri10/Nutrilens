@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, UploadCloud, Trash2, Calendar, FileText, Utensils, Check } from 'lucide-react';
+import { UploadCloud, Trash2, Calendar, FileText, Utensils, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 
@@ -14,7 +14,7 @@ const UploadMealPage = () => {
   const [mealType, setMealType] = useState('breakfast');
   const [date, setDate] = useState('');
   const [notes, setNotes] = useState('');
-  
+
   // UI states
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -77,7 +77,7 @@ const UploadMealPage = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       validateAndSetFile(e.dataTransfer.files[0]);
     }
@@ -142,21 +142,14 @@ const UploadMealPage = () => {
       {/* Premium Apple/Notion Header */}
       <header className="px-6 lg:px-16 h-16 flex items-center justify-between border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-2.5 py-1.5 rounded-lg bg-white shadow-sm transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Dashboard
-          </Link>
-          <div className="flex items-center gap-2">
+          <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-85 transition-opacity">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white shadow-sm">
               NL
             </div>
             <span className="text-lg font-bold tracking-tight text-slate-900">
               NutriLens<span className="text-emerald-500">AI</span>
             </span>
-          </div>
+          </Link>
         </div>
       </header>
 
@@ -187,11 +180,10 @@ const UploadMealPage = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`health-card bg-white border-2 border-dashed rounded-2xl p-12 text-center flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[350px] ${
-                  isDragging
+                className={`health-card bg-white border-2 border-dashed rounded-2xl p-12 text-center flex flex-col items-center justify-center cursor-pointer transition-all duration-300 min-h-[350px] ${isDragging
                     ? 'border-emerald-500 bg-emerald-50/10'
                     : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
-                }`}
+                  }`}
               >
                 <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 mb-6 transition-transform group-hover:scale-105">
                   <UploadCloud className="w-8 h-8" />
@@ -263,11 +255,10 @@ const UploadMealPage = () => {
                         key={type.id}
                         type="button"
                         onClick={() => setMealType(type.id)}
-                        className={`flex items-center justify-between p-3.5 rounded-xl border text-sm font-bold transition-all ${
-                          isSelected
+                        className={`flex items-center justify-between p-3.5 rounded-xl border text-sm font-bold transition-all ${isSelected
                             ? 'border-emerald-500 bg-emerald-50/20 text-emerald-700 ring-1 ring-emerald-500/10'
                             : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                        }`}
+                          }`}
                       >
                         <span className="flex items-center gap-2">
                           <span className="text-base">{type.emoji}</span>

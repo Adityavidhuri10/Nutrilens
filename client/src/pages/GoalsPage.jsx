@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import api from '../services/api';
 import GoalForm from '../components/goals/GoalForm';
-import { Target, ArrowLeft, ShieldAlert, Sparkles, Flame, Check, HelpCircle } from 'lucide-react';
+import { Target, ShieldAlert, Sparkles, Flame, Check, HelpCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const GoalsPage = () => {
@@ -106,33 +106,14 @@ const GoalsPage = () => {
       {/* Premium Apple/Notion styled Header */}
       <header className="px-6 lg:px-16 h-16 flex items-center justify-between border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="flex items-center gap-4">
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-2.5 py-1.5 rounded-lg bg-white shadow-sm transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Dashboard
-          </Link>
-          <Link
-            to="/meals"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-2.5 py-1.5 rounded-lg bg-white shadow-sm transition-colors"
-          >
-            My Meals
-          </Link>
-          <Link
-            to="/meals/upload"
-            className="flex items-center gap-1.5 text-xs font-bold text-white hover:bg-emerald-600 border border-transparent px-2.5 py-1.5 rounded-lg bg-emerald-500 shadow-sm transition-colors"
-          >
-            Log Meal
-          </Link>
-          <div className="flex items-center gap-2">
+          <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-85 transition-opacity">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white shadow-sm">
               NL
             </div>
             <span className="text-lg font-bold tracking-tight text-slate-900">
               NutriLens<span className="text-emerald-500">AI</span>
             </span>
-          </div>
+          </Link>
         </div>
       </header>
 

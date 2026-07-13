@@ -22,9 +22,9 @@ const DashboardPage = () => {
       try {
         const todayStr = new Date().toISOString().split('T')[0];
         const isToday = selectedDate === todayStr;
-        
-        const summaryUrl = isToday 
-          ? '/dashboard/today' 
+
+        const summaryUrl = isToday
+          ? '/dashboard/today'
           : `/meals/daily-summary?date=${selectedDate}`;
 
         const [profileRes, summaryRes, insightsRes] = await Promise.all([
@@ -52,9 +52,9 @@ const DashboardPage = () => {
     try {
       const todayStr = new Date().toISOString().split('T')[0];
       const isToday = newDate === todayStr;
-      
-      const summaryUrl = isToday 
-        ? '/dashboard/today' 
+
+      const summaryUrl = isToday
+        ? '/dashboard/today'
         : `/meals/daily-summary?date=${newDate}`;
 
       const { data } = await api.get(summaryUrl);
@@ -121,14 +121,14 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-[#f8fafc] text-[#475569] flex flex-col">
       {/* Header */}
       <header className="px-6 lg:px-16 h-16 flex items-center justify-between border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="flex items-center gap-2.5">
+        <Link to="/dashboard" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity">
           <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-white shadow-sm">
             NL
           </div>
           <span className="text-lg font-bold tracking-tight text-slate-900">
             NutriLens<span className="text-emerald-500">AI</span>
           </span>
-        </div>
+        </Link>
         <div className="flex items-center gap-3">
           <span className="hidden md:inline text-sm font-medium text-slate-600">
             <span className="font-bold text-slate-950">{user?.name}</span>
