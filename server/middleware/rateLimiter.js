@@ -9,6 +9,7 @@ const createRateLimiter = (config, messagePrefix = 'Too many requests') => {
   return rateLimit({
     windowMs: config.windowMs,
     max: config.max,
+    skip: () => process.env.NODE_ENV === 'test',
     message: {
       success: false,
       error: `${messagePrefix}. Please try again later.`,

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User.js';
 import ApiError from '../utils/ApiError.js';
 import env from '../config/env.js';
@@ -13,7 +14,7 @@ class AuthService {
    * Generate JWT access token (short-lived)
    */
   generateAccessToken(userId) {
-    return jwt.sign({ userId }, env.JWT_ACCESS_SECRET, {
+    return jwt.sign({ userId, jti: crypto.randomUUID() }, env.JWT_ACCESS_SECRET, {
       expiresIn: env.JWT_ACCESS_EXPIRY,
     });
   }
@@ -22,7 +23,7 @@ class AuthService {
    * Generate JWT refresh token (long-lived)
    */
   generateRefreshToken(userId) {
-    return jwt.sign({ userId }, env.JWT_REFRESH_SECRET, {
+    return jwt.sign({ userId, jti: crypto.randomUUID() }, env.JWT_REFRESH_SECRET, {
       expiresIn: env.JWT_REFRESH_EXPIRY,
     });
   }
